@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fênix | Consulta Empresarial</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0A0D1A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fênix CNPJ">
+  <meta name="description" content="Consulta de CNPJ rápida e profissional — Fênix Soluções Tecnológicas">
+
+  <!-- PWA Manifest inline -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"F%C3%AAnix%20Consulta%20Empresarial","short_name":"F%C3%AAnix%20CNPJ","start_url":".","display":"standalone","background_color":"%230A0D1A","theme_color":"%230A0D1A","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3163/3163478.png","sizes":"512x512","type":"image/png"}]}'>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0A0D1A;
+      --surface:   #0F1526;
+      --surface2:  #131929;
+      --surface3:  #171E30;
+      --border:    rgba(255,255,255,0.065);
+      --border2:   rgba(255,255,255,0.04);
+      --gold:      #F59E0B;
+      --gold-dim:  rgba(245,158,11,0.15);
+      --emerald:   #10B981;
+      --red:       #EF4444;
+      --blue:      #3B82F6;
+      --text:      #DDE1EE;
+      --muted:     rgba(221,225,238,0.42);
+      --muted2:    rgba(221,225,238,0.22);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient background glow */
+    #ambient {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 15% 5%,  rgba(245,158,11,0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 85% 95%, rgba(16,185,129,0.04) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 50% 50%, rgba(59,130,246,0.02) 0%, transparent 70%);
+    }
+
+    #root { position: relative; z-index: 1; }
+
+    /* Typography */
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .label {
+      font-size: 0.62rem; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 10px;
+    }
+
+    /* Glass panels */
+    .glass {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+    .glass-sm {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .glass-xs {
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+    }
+
+    /* Input */
+    .input-cnpj {
+      width: 100%; background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.15rem; color: var(--text);
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    .input-cnpj:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+    }
+    .input-cnpj::placeholder { color: var(--muted2); }
+
+    /* Buttons */
+    .btn-gold {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #0A0D1A; font-weight: 800; font-family: 'Syne', sans-serif;
+      border: none; border-radius: 12px; padding: 14px 28px;
+      cursor: pointer; font-size: 0.9rem; letter-spacing: 0.04em;
+      transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .btn-gold:hover:not(:disabled) {
+      filter: brightness(1.12);
+      box-shadow: 0 4px 20px rgba(245,158,11,0.3);
+    }
+    .btn-gold:active:not(:disabled) { transform: scale(0.96); }
+    .btn-gold:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 7px 14px; font-size: 0.75rem; font-weight: 600;
+      font-family: 'Syne', sans-serif; letter-spacing: 0.05em;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+    .btn-ghost.gold  { color: var(--gold); border-color: rgba(245,158,11,0.25); }
+    .btn-ghost.gold:hover { background: var(--gold-dim); }
+    .btn-ghost.red   { color: var(--red); border-color: rgba(239,68,68,0.25); }
+    .btn-ghost.red:hover { background: rgba(239,68,68,0.08); }
+    .btn-ghost.green { color: var(--emerald); border-color: rgba(16,185,129,0.25); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      background: transparent; border: 1.5px solid transparent;
+      border-radius: 9px; padding: 8px 18px; font-size: 0.78rem;
+      font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer; color: var(--muted); font-family: 'Syne', sans-serif;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .tab.active {
+      background: var(--surface2); color: var(--gold);
+      border-color: rgba(245,158,11,0.2);
+    }
+    .tab:not(.active):hover { color: var(--text); }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; border: 1px solid transparent;
+    }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .ativa   { background: rgba(16,185,129,0.12); color: #10B981; border-color: rgba(16,185,129,0.25); }
+    .inativa { background: rgba(239,68,68,0.12);  color: #EF4444; border-color: rgba(239,68,68,0.25); }
+    .outro   { background: rgba(245,158,11,0.12); color: #F59E0B; border-color: rgba(245,158,11,0.25); }
+
+    /* Data card grid */
+    .data-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .data-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .data-card-lbl { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+    .data-card-val { font-size: 0.9rem; color: var(--text); font-weight: 500; word-break: break-word; line-height: 1.4; }
+
+    /* Error box */
+    .error-box {
+      margin-top: 12px; background: rgba(239,68,68,0.07);
+      border: 1px solid rgba(239,68,68,0.2); border-radius: 10px;
+      padding: 12px 16px; font-size: 0.85rem; color: #FCA5A5;
+    }
+
+    /* History items */
+    .hist-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--surface2);
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    }
+    .hist-item:hover { border-color: rgba(245,158,11,0.22); background: var(--surface3); }
+
+    /* JSON pre */
+    .json-pre {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+      color: var(--muted); overflow-x: auto; line-height: 1.7;
+      white-space: pre; max-height: 520px; overflow-y: auto;
+    }
+    .json-pre::-webkit-scrollbar { width: 4px; height: 4px; }
+    .json-pre::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.25); border-radius: 99px; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid rgba(10,13,26,0.25);
+      border-top-color: #0A0D1A;
+      animation: spin 0.7s linear infinite; display: inline-block;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.35s ease forwards; }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.5); }
+      50%       { box-shadow: 0 0 0 7px rgba(245,158,11,0); }
+    }
+    .install-pulse { animation: glow 2.2s ease infinite; }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--border); margin: 6px 0; }
+
+    /* Socios */
+    .socio-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+
+    /* Footer */
+    footer { text-align: center; padding: 20px 0 10px; font-size: 0.72rem; color: var(--muted2); }
+    footer a { color: var(--gold); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Scrollbar global */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 99px; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .data-grid { grid-template-columns: 1fr 1fr; }
+      .search-row { flex-direction: column; }
+      .search-row .btn-gold { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<div id="ambient"></div>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ─── Utilitários ────────────────────────────────────────────────────────────
+
+const maskCnpj = (v = '') => {
+  const d = v.replace(/\D/g, '').slice(0, 14);
+  return d
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+    .replace(/(\d{4})(\d)/, '$1-$2');
+};
+
+const fmtCurrency = (v) =>
+  Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+const fmtCep = (v) => String(v).replace(/^(\d{5})(\d{3})$/, '$1-$2');
+
+const fmtDate = (v) => {
+  if (!v) return '—';
+  const d = new Date(String(v).includes('T') ? v : v + 'T12:00:00');
+  return isNaN(d.getTime()) ? String(v) : d.toLocaleDateString('pt-BR');
+};
+
+const fmtPhone = (ddd, tel) => {
+  if (!ddd && !tel) return '—';
+  const raw = String(tel || ddd || '').replace(/\D/g, '');
+  if (raw.length === 8) return `(${ddd}) ${raw.slice(0,4)}-${raw.slice(4)}`;
+  if (raw.length >= 9) return `(${ddd}) ${raw.slice(0,5)}-${raw.slice(5)}`;
+  return `(${ddd || ''}) ${tel || ''}`.trim();
+};
+
+const statusCls = (s = '') => {
+  const u = s.toUpperCase();
+  if (u.includes('ATIVA') && !u.includes('INAPT') && !u.includes('INATIVA')) return 'ativa';
+  if (['INATIVA','BAIXADA','CANCELADA','NULA','INAPTA'].some(w => u.includes(w))) return 'inativa';
+  return 'outro';
+};
+
+const downloadJson = (obj, filename) => {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), { href: url, download: filename });
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// ─── Persistência JSON ──────────────────────────────────────────────────────
+
+const STORAGE_KEY = 'fenix:history:v2';
+
+const loadHistory = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch { return []; }
+};
+
+const saveHistory = (list) => {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch {}
+};
+
+// ─── Componentes menores ────────────────────────────────────────────────────
+
+const DataCard = ({ label, value, mono }) => (
+  <div className="data-card">
+    <div className="data-card-lbl">{label}</div>
+    <div className={`data-card-val${mono ? ' mono' : ''}`}>{value || '—'}</div>
+  </div>
+);
+
+const Badge = ({ text }) => {
+  const cls = statusCls(text || '');
+  return (
+    <span className={`badge ${cls}`}>
+      <span className="badge-dot"></span>
+      {text || 'Desconhecido'}
+    </span>
+  );
+};
+
+// ─── App principal ──────────────────────────────────────────────────────────
+
+function FenixApp() {
+  const [cnpj,    setCnpj]    = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState('');
+  const [data,    setData]    = useState(null);
+  const [tab,     setTab]     = useState('resumo');
+  const [history, setHistory] = useState(loadHistory);
+  const [prompt,  setPrompt]  = useState(null);   // PWA install
+  const [copied,  setCopied]  = useState(false);
+  const [meta,    setMeta]    = useState(null);   // {time, ms}
+  const inputRef = useRef(null);
+
+  // ── PWA: captura evento de instalação + registra Service Worker via blob ──
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setPrompt(e);
+    });
+
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        const CACHE = 'fenix-sw-v2';
+        self.addEventListener('install',  () => self.skipWaiting());
+        self.addEventListener('activate', e  => e.waitUntil(clients.claim()));
+        self.addEventListener('fetch',    e  => {
+          e.respondWith(
+            fetch(e.request).catch(() => new Response('', { status: 503 }))
+          );
+        });
+      `;
+      const blob = new Blob([swCode], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+    }
+  }, []);
+
+  const handleInstall = async () => {
+    if (!prompt) return;
+    prompt.prompt();
+    const { outcome } = await prompt.userChoice;
+    if (outcome === 'accepted') setPrompt(null);
+  };
+
+  // ── Consulta ─────────────────────────────────────────────────────────────
+  const consultar = useCallback(async () => {
+    const clean = cnpj.replace(/\D/g, '');
+    if (clean.length !== 14) {
+      setError('CNPJ inválido — informe todos os 14 dígitos.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      setData(null);
+
+      const t0  = performance.now();
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${clean}`);
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || `Empresa não encontrada (${res.status})`);
+      }
+
+      const result  = await res.json();
+      const elapsed = Math.round(performance.now() - t0);
+
+      setData(result);
+      setTab('resumo');
+      setMeta({ time: new Date(), ms: elapsed });
+
+      // Monta registro JSON do histórico
+      const entry = {
+        cnpj:          maskCnpj(clean),
+        razao_social:  result.razao_social        || '',
+        nome_fantasia: result.nome_fantasia        || '',
+        situacao:      result.descricao_situacao_cadastral || '',
+        cnae_principal:result.cnae_fiscal_descricao || '',
+        municipio:     result.municipio            || '',
+        uf:            result.uf                   || '',
+        capital_social:result.capital_social       || null,
+        consultadoEm:  new Date().toISOString(),
+      };
+
+      setHistory(prev => {
+        const next = [entry, ...prev.filter(h => h.cnpj !== entry.cnpj)].slice(0, 15);
+        saveHistory(next);
+        return next;
+      });
+
+    } catch (e) {
+      setError(e.message || 'Erro na consulta. Verifique o CNPJ e tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  }, [cnpj]);
+
+  const handleKey = (e) => { if (e.key === 'Enter') consultar(); };
+
+  const copyJson = () => {
+    if (!data) return;
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    });
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    saveHistory([]);
+  };
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  return (
+    <div style={{ maxWidth: 960, margin: '0 auto', padding: '24px 16px 40px' }}>
+
+      {/* ── Header ── */}
+      <header style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom: 24 }}>
+        <div>
+          <div className="label">Sistema de Inteligência Empresarial</div>
+          <h1 style={{ fontSize:'clamp(1.6rem,4vw,2.3rem)', fontWeight:800, letterSpacing:'-0.025em', lineHeight:1.1, color: 'var(--text)' }}>
+            🔥 Fênix&nbsp;<span style={{ color:'var(--gold)' }}>CNPJ</span>
+            <sup style={{ fontSize:'0.38em', color:'var(--muted)', fontWeight:400, marginLeft:6, verticalAlign:'super' }}>v2.0</sup>
+          </h1>
+          <p style={{ marginTop:6, fontSize:'0.8rem', color:'var(--muted)', maxWidth: 360 }}>
+            Consulta rápida de empresas via CNPJ · Dados: BrasilAPI
+          </p>
+        </div>
+        {prompt && (
+          <button onClick={handleInstall} className="btn-gold install-pulse"
+            style={{ fontSize:'0.82rem', padding:'10px 18px', marginTop:4 }}>
+            📲 Instalar App
+          </button>
+        )}
+      </header>
+
+      {/* ── Busca ── */}
+      <div className="glass" style={{ padding:22, marginBottom:16 }}>
+        <div className="label">Consultar CNPJ</div>
+        <div className="search-row" style={{ display:'flex', gap:10 }}>
+          <input
+            ref={inputRef}
+            type="text"
+            inputMode="numeric"
+            className="input-cnpj"
+            placeholder="00.000.000/0000-00"
+            value={cnpj}
+            onChange={e => { setError(''); setCnpj(maskCnpj(e.target.value)); }}
+            onKeyDown={handleKey}
+            maxLength={18}
+            autoComplete="off"
+            spellCheck="false"
+          />
+          <button className="btn-gold" onClick={consultar} disabled={loading}
+            style={{ display:'flex', alignItems:'center', gap:8 }}>
+            {loading
+              ? <><span className="spinner"></span>Consultando…</>
+              : '🔍 Consultar'}
+          </button>
+        </div>
+        {error && <div className="error-box">⚠️ {error}</div>}
+      </div>
+
+      {/* ── Resultado ── */}
+      {data && (
+        <div className="fade-up" style={{ marginBottom:16 }}>
+
+          {/* Cabeçalho empresa */}
+          <div className="glass" style={{ padding:'20px 22px', marginBottom:12 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div className="label">Empresa</div>
+                <h2 style={{ fontSize:'clamp(1rem,2.5vw,1.35rem)', fontWeight:700, lineHeight:1.25, marginBottom:4 }}>
+                  {data.razao_social || '—'}
+                </h2>
+                {data.nome_fantasia && (
+                  <p style={{ color:'var(--muted)', fontSize:'0.875rem', marginBottom:8 }}>
+                    {data.nome_fantasia}
+                  </p>
+                )}
+                <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                  <Badge text={data.descricao_situacao_cadastral} />
+                  {data.porte && <span className="badge outro">{data.porte}</span>}
+                  {data.opcao_pelo_simples && <span className="badge outro">Simples Nacional</span>}
+                  {data.opcao_pelo_mei     && <span className="badge outro">MEI</span>}
+                </div>
+              </div>
+              <div style={{ textAlign:'right', flexShrink:0 }}>
+                <div className="mono" style={{ color:'var(--gold)', fontSize:'1rem', fontWeight:500 }}>
+                  {maskCnpj(data.cnpj || '')}
+                </div>
+                {meta && (
+                  <div style={{ fontSize:'0.68rem', color:'var(--muted2)', marginTop:4 }}>
+                    {meta.time.toLocaleTimeString('pt-BR')} · {meta.ms} ms
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Barra de abas + ações */}
+          <div className="glass" style={{ padding:'6px 6px', marginBottom:12, display:'flex', alignItems:'center' }}>
+            <div className="tabs" style={{ flex:1 }}>
+              {[
+                { id:'resumo',  lbl:'Resumo'  },
+                { id:'socios',  lbl:'Sócios'  },
+                { id:'cnaes',   lbl:'CNAEs'   },
+                { id:'json',    lbl:'JSON'     },
+              ].map(t => (
+                <button key={t.id}
+                  className={`tab${tab === t.id ? ' active' : ''}`}
+                  onClick={() => setTab(t.id)}>
+                  {t.lbl}
+                </button>
+              ))}
+            </div>
+            <div style={{ display:'flex', gap:6, paddingRight:4 }}>
+              <button className={`btn-ghost${copied ? ' green' : ''}`} onClick={copyJson}>
+                {copied ? '✓ Copiado' : '⎘ Copiar JSON'}
+              </button>
+              <button className="btn-ghost gold"
+                onClick={() => downloadJson(data, `cnpj-${(data.cnpj||'').replace(/\D/g,'')}.json`)}>
+                ↓ Exportar
+              </button>
+            </div>
+          </div>
+
+          {/* ── Tab: Resumo ── */}
+          {tab === 'resumo' && (
+            <div className="fade-up">
+              <div className="data-grid">
+                <DataCard label="CNPJ"               value={maskCnpj(data.cnpj || '')} mono />
+                <DataCard label="Natureza Jurídica"  value={data.natureza_juridica} />
+                <DataCard label="Data de Abertura"   value={fmtDate(data.data_inicio_atividade)} />
+                <DataCard label="Situação"           value={data.descricao_situacao_cadastral} />
+                <DataCard label="Motivo"             value={data.descricao_motivo_situacao_cadastral} />
+                <DataCard label="Capital Social"     value={data.capital_social ? fmtCurrency(data.capital_social) : null} />
+                <DataCard label="Logradouro"
+                  value={[data.tipo_logradouro, data.logradouro, data.numero, data.complemento]
+                    .filter(Boolean).join(' ')} />
+                <DataCard label="Bairro"    value={data.bairro} />
+                <DataCard label="Município" value={data.municipio} />
+                <DataCard label="UF"        value={data.uf} />
+                <DataCard label="CEP"       value={data.cep ? fmtCep(String(data.cep).padStart(8,'0')) : null} mono />
+                <DataCard label="Telefone"  value={fmtPhone(data.ddd_telefone_1, data.ddd_telefone_1)} />
+                {data.ddd_telefone_2 &&
+                  <DataCard label="Telefone 2" value={fmtPhone(data.ddd_telefone_2, data.ddd_telefone_2)} />}
+                <DataCard label="E-mail"    value={data.email} />
+                <DataCard label="Simples Nacional" value={data.opcao_pelo_simples ? 'Sim' : 'Não'} />
+                <DataCard label="MEI"        value={data.opcao_pelo_mei ? 'Sim' : 'Não'} />
+              </div>
+            </div>
+          )}
+
+          {/* ── Tab: Sócios ── */}
+          {tab === 'socios' && (
+            <div className="fade-up">
+              {data.qsa && data.qsa.length > 0 ? (
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  {data.qsa.map((s, i) => (
+                    <div key={i} className="socio-card">
+                      <div style={{ display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
+                        <div>
+                          <div style={{ fontWeight:700, fontSize:'0.975rem' }}>
+                            {s.nome_socio || s.nome_representante_legal || '—'}
+                          </div>
+                          <div style={{ color:'var(--muted)', fontSize:'0.82rem', marginTop:3 }}>
+                            {s.qualificacao_socio}
+                          </div>
+                          {s.nome_representante_legal && s.nome_representante_legal !== s.nome_socio && (
+                            <div style={{ color:'var(--muted2)', fontSize:'0.78rem', marginTop:2 }}>
+                              Rep: {s.nome_representante_legal}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ textAlign:'right' }}>
+                          {s.cnpj_cpf_do_socio && (
+                            <div className="mono" style={{ fontSize:'0.8rem', color:'var(--gold)' }}>
+                              {s.cnpj_cpf_do_socio}
+                            </div>
+                          )}
+                          {s.data_entrada_sociedade && (
+                            <div style={{ fontSize:'0.72rem', color:'var(--muted)', marginTop:3 }}>
+                              Desde {fmtDate(s.data_entrada_sociedade)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ textAlign:'center', color:'var(--muted)', padding:'40px 0', fontSize:'0.875rem' }}>
+                  Nenhum sócio registrado para este CNPJ.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Tab: CNAEs ── */}
+          {tab === 'cnaes' && (
+            <div className="fade-up" style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {data.cnae_fiscal && (
+                <div className="glass-sm" style={{ padding:'16px 18px' }}>
+                  <div className="label">CNAE Principal</div>
+                  <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
+                    <span className="mono" style={{ color:'var(--gold)', fontWeight:700, flexShrink:0, fontSize:'0.95rem' }}>
+                      {data.cnae_fiscal}
+                    </span>
+                    <span style={{ fontSize:'0.9rem', lineHeight:1.5 }}>
+                      {data.cnae_fiscal_descricao || '—'}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {data.cnaes_secundarios && data.cnaes_secundarios.length > 0 && (
+                <div className="glass-sm" style={{ padding:'16px 18px' }}>
+                  <div className="label">CNAEs Secundários ({data.cnaes_secundarios.length})</div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
+                    {data.cnaes_secundarios.map((c, i) => (
+                      <div key={i} style={{
+                        display:'flex', gap:14, alignItems:'flex-start',
+                        padding:'9px 0',
+                        borderBottom: i < data.cnaes_secundarios.length-1 ? '1px solid var(--border2)' : 'none',
+                      }}>
+                        <span className="mono" style={{ color:'var(--muted)', fontWeight:600, flexShrink:0, fontSize:'0.8rem', paddingTop:1 }}>
+                          {c.codigo}
+                        </span>
+                        <span style={{ fontSize:'0.875rem', lineHeight:1.5 }}>{c.descricao}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {!data.cnae_fiscal && (!data.cnaes_secundarios || !data.cnaes_secundarios.length) && (
+                <div style={{ textAlign:'center', color:'var(--muted)', padding:'40px 0', fontSize:'0.875rem' }}>
+                  Nenhuma atividade econômica registrada.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Tab: JSON ── */}
+          {tab === 'json' && (
+            <div className="fade-up glass" style={{ padding:20 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+                <div className="label" style={{ marginBottom:0 }}>JSON Completo</div>
+                <div style={{ display:'flex', gap:6 }}>
+                  <button className={`btn-ghost${copied ? ' green' : ''}`} onClick={copyJson}>
+                    {copied ? '✓ Copiado!' : '⎘ Copiar'}
+                  </button>
+                  <button className="btn-ghost gold"
+                    onClick={() => downloadJson(data, `cnpj-${(data.cnpj||'').replace(/\D/g,'')}.json`)}>
+                    ↓ Baixar .json
+                  </button>
+                </div>
+              </div>
+              <pre className="json-pre">{JSON.stringify(data, null, 2)}</pre>
+            </div>
+          )}
+
+        </div>
+      )}
+
+      {/* ── Histórico ── */}
+      <div className="glass" style={{ padding:22 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+          <div>
+            <div className="label" style={{ marginBottom:2 }}>Histórico de Consultas</div>
+            <p style={{ fontSize:'0.75rem', color:'var(--muted)' }}>
+              {history.length} registro{history.length !== 1 ? 's' : ''} · armazenado em JSON local
+            </p>
+          </div>
+          {history.length > 0 && (
+            <div style={{ display:'flex', gap:6 }}>
+              <button className="btn-ghost gold"
+                onClick={() => downloadJson(history, 'fenix-historico.json')}>
+                ↓ Exportar JSON
+              </button>
+              <button className="btn-ghost red" onClick={clearHistory}>
+                ✕ Limpar
+              </button>
+            </div>
+          )}
+        </div>
+
+        {history.length > 0 ? (
+          <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+            {history.map((item, i) => (
+              <div key={i} className="hist-item"
+                onClick={() => { setCnpj(item.cnpj); inputRef.current?.focus(); }}>
+                <Badge text={item.situacao} />
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontWeight:600, fontSize:'0.875rem', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                    {item.razao_social || item.cnpj}
+                  </div>
+                  {item.nome_fantasia && (
+                    <div style={{ fontSize:'0.72rem', color:'var(--muted)', marginTop:1 }}>
+                      {item.nome_fantasia}
+                    </div>
+                  )}
+                </div>
+                <div style={{ textAlign:'right', flexShrink:0 }}>
+                  <div className="mono" style={{ fontSize:'0.75rem', color:'var(--gold)' }}>{item.cnpj}</div>
+                  {item.municipio && (
+                    <div style={{ fontSize:'0.65rem', color:'var(--muted2)', marginTop:2 }}>
+                      {item.municipio}/{item.uf}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign:'center', color:'var(--muted)', padding:'28px 0', fontSize:'0.85rem' }}>
+            Nenhuma consulta realizada ainda.<br/>
+            <span style={{ fontSize:'0.75rem', color:'var(--muted2)' }}>
+              O histórico é salvo automaticamente em JSON no seu dispositivo.
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* ── Footer ── */}
+      <footer>
+        © 2026&nbsp;
+        <a href="https://wa.me/5579999680880" target="_blank" rel="noopener">Cristiano Fênix</a>
+        &nbsp;·&nbsp;
+        <a href="https://instagram.com/fenixsolucoestecnologicas" target="_blank" rel="noopener">Fênix Soluções Tecnológicas</a>
+        &nbsp;·&nbsp;Dados via BrasilAPI
+      </footer>
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<FenixApp />);
+</script>
+</body>
+</html>
