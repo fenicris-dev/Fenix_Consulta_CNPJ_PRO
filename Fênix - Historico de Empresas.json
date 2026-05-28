@@ -1,0 +1,90 @@
+[
+  {
+    "cnpj": "60.292.878/0001-70",
+    "razao_social": "60.292.878 CRISTIANO RODRIGUES",
+    "nome_fantasia": "",
+    "situacao": "ATIVA",
+    "cnae_principal": "Instalação e manutenção elétrica",
+    "municipio": "ARACAJU",
+    "uf": "SE",
+    "capital_social": 22000,
+    "consultadoEm": "2026-05-28T02:54:32.410Z"
+  },
+  {
+    "cnpj": "41.545.501/0001-30",
+    "razao_social": "CRISTIANO RODRIGUES 58891340510",
+    "nome_fantasia": "FENIX SOLUCOES TECNOLOGICAS",
+    "situacao": "BAIXADA",
+    "cnae_principal": "Instalação e manutenção elétrica",
+    "municipio": "PROPRIA",
+    "uf": "SE",
+    "capital_social": 5000,
+    "consultadoEm": "2026-05-28T02:53:42.495Z"
+  },
+  {
+    "cnpj": "55.795.188/0001-01",
+    "razao_social": "FENIX SOLUCOES TECNOLOGICAS LTDA",
+    "nome_fantasia": "FENIX SOLUCOES TECNOLOGICAS",
+    "situacao": "BAIXADA",
+    "cnae_principal": "Aluguel de outras máquinas e equipamentos comerciais e industriais não especificados anteriormente, sem operador",
+    "municipio": "PROPRIA",
+    "uf": "SE",
+    "capital_social": 25000,
+    "consultadoEm": "2026-05-28T02:52:07.619Z"
+  },
+  {
+    "cnpj": "07.676.981/0001-30",
+    "razao_social": "FENIX CONSULTORIA & INFORMATICA LTDA",
+    "nome_fantasia": "",
+    "situacao": "BAIXADA",
+    "cnae_principal": "Reparação e manutenção de computadores e de equipamentos periféricos",
+    "municipio": "PROPRIA",
+    "uf": "SE",
+    "capital_social": 9000,
+    "consultadoEm": "2026-05-28T02:50:37.941Z"
+  },
+  {
+    "cnpj": "51.217.649/0001-08",
+    "razao_social": "POLITICA SERGIPANA LTDA",
+    "nome_fantasia": "POLITICA SERGIPANA",
+    "situacao": "ATIVA",
+    "cnae_principal": "Portais, provedores de conteúdo e outros serviços de informação na internet",
+    "municipio": "PROPRIA",
+    "uf": "SE",
+    "capital_social": 25000,
+    "consultadoEm": "2026-05-28T02:47:50.446Z"
+  },
+  {
+    "cnpj": "97.422.620/0101-13",
+    "razao_social": "BOMPRECO BAHIA SUPERMERCADOS LTDA",
+    "nome_fantasia": "TODO DIA",
+    "situacao": "ATIVA",
+    "cnae_principal": "Comércio varejista de mercadorias em geral, com predominância de produtos alimentícios - supermercados",
+    "municipio": "PROPRIA",
+    "uf": "SE",
+    "capital_social": 2219480800,
+    "consultadoEm": "2026-05-28T02:43:42.234Z"
+  },
+  {
+    "cnpj": "02.489.981/0001-08",
+    "razao_social": "I.V.L. INDUSTRIAS VIEIRA LTDA",
+    "nome_fantasia": "",
+    "situacao": "ATIVA",
+    "cnae_principal": "Fabricação de vinagres",
+    "municipio": "LAGARTO",
+    "uf": "SE",
+    "capital_social": 166360700,
+    "consultadoEm": "2026-05-27T12:23:33.934Z"
+  },
+  {
+    "cnpj": "17.340.311/0001-00",
+    "razao_social": "SYSWEB - GESTAO E TECNOLOGIA DA INFORMACAO LTDA",
+    "nome_fantasia": "TAUGOR PROPRIA",
+    "situacao": "ATIVA",
+    "cnae_principal": "Tratamento de dados, provedores de serviços de aplicação e serviços de hospedagem na internet",
+    "municipio": "PROPRIA",
+    "uf": "SE",
+    "capital_social": 23000,
+    "consultadoEm": "2026-05-27T12:23:14.927Z"
+  }
+]
