@@ -881,6 +881,19 @@ const renderResult = (data, meta) => {
         <button class="btn" id="btn-nova" style="margin-top:8px;font-size:0.7rem">✕ Nova busca</button>
       </div>
     </div>`;
+  // ── Barra de longevidade ─────────────────────────────────────────────────
+  const encData = isEnc(data.descricao_situacao_cadastral||'');
+  const barHtml = longevidadeBarHTML(
+    data.data_inicio_atividade,
+    encData ? data.data_situacao_cadastral : null,
+    encData
+  );
+  if (barHtml) {
+    const barEl = document.createElement('div');
+    barEl.innerHTML = barHtml;
+    document.getElementById('res-header').appendChild(barEl);
+  }
+
   document.getElementById('btn-nova').onclick = limpar;
 
   // Resumo
@@ -1041,7 +1054,8 @@ document.getElementById('cnpj-input').addEventListener('input', function() {
 // ── Dropdown ações ────────────────────────────────────────────────────────────
 document.getElementById('btn-acoes').onclick = e => {
   e.stopPropagation();
-  document.getElementById('dd-menu').classList.toggle('open');
+  const isOpen = document.getElementById('dd-menu').classList.toggle('open');
+  document.getElementById('dd-arrow').style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 };
 document.addEventListener('click', () => document.getElementById('dd-menu').classList.remove('open'));
 
@@ -1066,6 +1080,148 @@ document.getElementById('dd-wpp').onclick = () => {
   if (!currentData) return;
   shareWpp(currentData);
   document.getElementById('dd-menu').classList.remove('open');
+};
+
+
+// ── Longevidade ───────────────────────────────────────────────────────────────
+const calcLongevidade = (dataAbertura, dataEnc) => {
+  if (!dataAbertura) return null;
+  const inicio = new Date(String(dataAbertura).includes('T') ? dataAbertura : dataAbertura + 'T12:00:00');
+  const fim    = dataEnc
+    ? new Date(String(dataEnc).includes('T') ? dataEnc : dataEnc + 'T12:00:00')
+    : new Date();
+  if (isNaN(inicio.getTime())) return null;
+
+  let anos  = fim.getFullYear() - inicio.getFullYear();
+  let meses = fim.getMonth()    - inicio.getMonth();
+  let dias  = fim.getDate()     - inicio.getDate();
+
+  if (dias  < 0) { meses--; dias  += 30; }
+  if (meses < 0) { anos--;  meses += 12; }
+
+  const totalMeses = anos * 12 + meses;
+  const totalDias  = Math.floor((fim - inicio) / 86400000);
+
+  return { anos, meses, dias, totalMeses, totalDias, inicio, fim };
+};
+
+const fmtLongevidade = (l, encerrada) => {
+  if (!l) return '—';
+  const partes = [];
+  if (l.anos  > 0) partes.push(l.anos  + (l.anos  === 1 ? ' ano'  : ' anos'));
+  if (l.meses > 0) partes.push(l.meses + (l.meses === 1 ? ' mês'  : ' meses'));
+  if (partes.length === 0) partes.push(l.dias + (l.dias === 1 ? ' dia' : ' dias'));
+  const texto = partes.join(' e ');
+  return encerrada ? 'Operou por ' + texto : 'Fundada há ' + texto;
+};
+
+const classeLongevidade = (totalMeses) => {
+  if (totalMeses <  24) return { label:'Startup',      cor:'#a78bfa', bg:'rgba(167,139,250,0.1)',  borda:'rgba(167,139,250,0.25)', icone:'🌱', max:24  };
+  if (totalMeses < 120) return { label:'Consolidada',  cor:'#60a5fa', bg:'rgba(96,165,250,0.1)',   borda:'rgba(96,165,250,0.25)',  icone:'🏢', max:120 };
+  if (totalMeses < 240) return { label:'Estabelecida', cor:var_gold,  bg:'rgba(245,158,11,0.1)',   borda:'rgba(245,158,11,0.25)', icone:'⭐', max:240 };
+  return                       { label:'Veterana',     cor:'#34d399', bg:'rgba(52,211,153,0.1)',   borda:'rgba(52,211,153,0.28)', icone:'🏆', max:999 };
+};
+const var_gold = '#f59e0b';
+
+const longevidadeBarHTML = (dataAbertura, dataEnc, encerrada) => {
+  const l = calcLongevidade(dataAbertura, dataEnc);
+  if (!l) return '';
+  const cls = classeLongevidade(l.totalMeses);
+
+  // Bar fill: cap at 480 months (40 years) for visual purposes
+  const CAP = 480;
+  const pct = Math.min(100, Math.round((l.totalMeses / CAP) * 100));
+  // Milestone markers at 2y, 10y, 20y, 40y
+  const markers = [
+    { pct: Math.round((24/CAP)*100),  label:'2a'  },
+    { pct: Math.round((120/CAP)*100), label:'10a' },
+    { pct: Math.round((240/CAP)*100), label:'20a' },
+    { pct: Math.round((480/CAP)*100), label:'40a' },
+  ];
+
+  const textoLong = fmtLongevidade(l, encerrada);
+  const prefixo  = encerrada ? 'Período de atividade' : 'Tempo de atividade';
+
+  return `
+  <div style="margin-top:18px;padding:18px 20px;
+              background:rgba(2,9,21,0.55);
+              border:1px solid ${cls.borda};
+              border-radius:14px;
+              position:relative;overflow:hidden">
+    <!-- Glow bg -->
+    <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;
+                border-radius:50%;background:${cls.bg};filter:blur(30px);pointer-events:none"></div>
+
+    <!-- Header row -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-family:var(--f-label);font-size:0.58rem;font-weight:700;font-style:italic;
+                    letter-spacing:0.15em;text-transform:uppercase;color:var(--t3);margin-bottom:5px">
+          ${prefixo}
+        </div>
+        <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+          <span style="font-family:var(--f-display);font-size:1.5rem;font-weight:700;color:${cls.cor};line-height:1">
+            ${l.anos > 0 ? l.anos : (l.meses > 0 ? l.meses : l.dias)}
+          </span>
+          <span style="font-size:0.78rem;color:var(--t2);font-weight:500">
+            ${l.anos > 0 ? (l.anos===1?'ano':'anos') : (l.meses > 0 ? (l.meses===1?'mês':'meses') : (l.dias===1?'dia':'dias'))}
+            ${l.anos > 0 && l.meses > 0 ? '<span style="color:var(--t3);margin:0 4px">·</span>' + l.meses + ' ' + (l.meses===1?'mês':'meses') : ''}
+          </span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--t2);margin-top:3px">${textoLong}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="display:inline-flex;align-items:center;gap:6px;
+                    padding:5px 13px;border-radius:999px;
+                    background:${cls.bg};border:1px solid ${cls.borda}">
+          <span style="font-size:0.9rem">${cls.icone}</span>
+          <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;
+                       text-transform:uppercase;color:${cls.cor};font-family:var(--f-body)">${cls.label}</span>
+        </div>
+        <div style="font-size:0.65rem;color:var(--t3);margin-top:6px">
+          ${fmtDate(dataAbertura)}${encerrada && dataEnc ? ' → ' + fmtDate(dataEnc) : ' → hoje'}
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div style="position:relative;margin-bottom:6px">
+      <!-- Track -->
+      <div style="height:8px;border-radius:99px;background:rgba(120,160,255,0.08);
+                  border:1px solid rgba(120,160,255,0.06);overflow:hidden;position:relative">
+        <!-- Fill -->
+        <div style="height:100%;width:${pct}%;border-radius:99px;
+                    background:linear-gradient(90deg,${cls.cor}99,${cls.cor});
+                    box-shadow:0 0 8px ${cls.cor}66;
+                    transition:width 1s cubic-bezier(0.22,1,0.36,1);
+                    position:relative;overflow:hidden">
+          <!-- Shimmer -->
+          <div style="position:absolute;top:0;left:-100%;width:60%;height:100%;
+                      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+                      animation:shimmer 2.5s ease infinite"></div>
+        </div>
+      </div>
+      <!-- Milestone markers -->
+      ${markers.map(m => `
+        <div style="position:absolute;top:-4px;left:${m.pct}%;transform:translateX(-50%);
+                    width:1px;height:16px;background:rgba(120,160,255,0.15);pointer-events:none">
+          <div style="position:absolute;top:18px;left:50%;transform:translateX(-50%);
+                      font-size:0.5rem;color:var(--t3);white-space:nowrap;font-family:var(--f-mono)">
+            ${m.label}
+          </div>
+        </div>`).join('')}
+    </div>
+    <!-- Pct label -->
+    <div style="display:flex;justify-content:space-between;margin-top:22px">
+      <span style="font-size:0.62rem;color:var(--t3)">Fundação</span>
+      <span style="font-size:0.62rem;color:${cls.cor};font-weight:600">${pct}% de 40 anos</span>
+      <span style="font-size:0.62rem;color:var(--t3)">40 anos</span>
+    </div>
+  </div>
+
+  <style>
+  @keyframes shimmer{0%{left:-100%}100%{left:200%}}
+  </style>`;
 };
 
 // ── WhatsApp ──────────────────────────────────────────────────────────────────
@@ -1243,6 +1399,12 @@ const renderHist = () => {
       item.data_abertura ? `<span class="chip">📅 ${fmtDate(item.data_abertura)}</span>` : '',
       enc&&item.data_encerramento ? `<span class="chip enc">🔒 Enc. ${fmtDate(item.data_encerramento)}</span>` : '',
       item.capital_social ? `<span class="chip cap">💰 ${fmtExt(item.capital_social)}</span>` : '',
+      (() => {
+        const l = calcLongevidade(item.data_abertura, item.data_encerramento);
+        if (!l) return '';
+        const cls = classeLongevidade(l.totalMeses);
+        return `<span class="chip" style="color:${cls.cor};border-color:${cls.borda};background:${cls.bg}">${cls.icone} ${cls.label} · ${l.anos > 0 ? l.anos + 'a' : l.meses + 'm'}</span>`;
+      })(),
       item.obs ? `<span class="chip obs">📝 Obs</span>` : '',
     ].filter(Boolean).join('');
     return `<div class="hist-item" id="hi-${i}">
@@ -1371,23 +1533,11 @@ window.consultar = async (override) => {
   await _consultar_orig(override);
   lbarDone();
 };
-// re-bind button
 document.getElementById('btn-consultar').onclick = () => window.consultar();
-// re-bind auto input
-document.getElementById('cnpj-input').addEventListener('input', function(){
-  const raw = this.value.replace(/\D/g,'');
-  this.value = maskCnpj(this.value);
-  const d = this.value.replace(/\D/g,'');
-  this.className = 'input-cnpj' + (d.length===0 ? '' : d.length===14 ? ' valid' : ' invalid');
-  document.getElementById('error-box').style.display = 'none';
-  if (d.length === 14) window.consultar(this.value);
-}, true);
+// input listener is in logic.js - no duplicate needed
 
-// ── DD arrow rotation ─────────────────────────────────────────────────────────
-document.getElementById('btn-acoes').addEventListener('click', () => {
-  const open = document.getElementById('dd-menu').classList.contains('open');
-  document.getElementById('dd-arrow').style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
-});
+// ── DD arrow rotation (integrated into onclick below) ──────────────────────────
+// Arrow is rotated via the existing onclick in logic.js - no duplicate listener needed
 
 // ── jsPDF dynamic load ────────────────────────────────────────────────────────
 const s = document.createElement('script');
