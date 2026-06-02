@@ -1,0 +1,120 @@
+{
+  "uf": "SE",
+  "cep": "49075030",
+  "qsa": [
+    {
+      "pais": null,
+      "nome_socio": "ANTONIO MIQUEIAS SOUZA MATOS",
+      "codigo_pais": null,
+      "faixa_etaria": "Entre 21 a 30 anos",
+      "cnpj_cpf_do_socio": "***951145**",
+      "qualificacao_socio": "Sócio-Administrador",
+      "codigo_faixa_etaria": 3,
+      "data_entrada_sociedade": "2019-03-27",
+      "identificador_de_socio": 2,
+      "cpf_representante_legal": "***000000**",
+      "nome_representante_legal": "",
+      "codigo_qualificacao_socio": 49,
+      "qualificacao_representante_legal": "Não informada",
+      "codigo_qualificacao_representante_legal": 0
+    },
+    {
+      "pais": null,
+      "nome_socio": "MIGUEL DE SOUZA MATOS",
+      "codigo_pais": null,
+      "faixa_etaria": "Entre 31 a 40 anos",
+      "cnpj_cpf_do_socio": "***883855**",
+      "qualificacao_socio": "Sócio-Administrador",
+      "codigo_faixa_etaria": 4,
+      "data_entrada_sociedade": "2019-03-27",
+      "identificador_de_socio": 2,
+      "cpf_representante_legal": "***000000**",
+      "nome_representante_legal": "",
+      "codigo_qualificacao_socio": 49,
+      "qualificacao_representante_legal": "Não informada",
+      "codigo_qualificacao_representante_legal": 0
+    }
+  ],
+  "cnpj": "01347167000196",
+  "pais": null,
+  "email": null,
+  "porte": "MICRO EMPRESA",
+  "bairro": "SIQUEIRA CAMPOS",
+  "numero": "393",
+  "ddd_fax": "7932119861",
+  "municipio": "ARACAJU",
+  "logradouro": "ALAGOAS",
+  "cnae_fiscal": 4711302,
+  "codigo_pais": null,
+  "complemento": "",
+  "codigo_porte": 1,
+  "razao_social": "SUPERMERCADO SAO MIGUEL LTDA",
+  "nome_fantasia": "SUPERMERCADO SAO MIGUEL",
+  "capital_social": 100000,
+  "ddd_telefone_1": "7932247522",
+  "ddd_telefone_2": "7932118758",
+  "opcao_pelo_mei": false,
+  "codigo_municipio": 3105,
+  "cnaes_secundarios": [],
+  "natureza_juridica": "Sociedade Empresária Limitada",
+  "regime_tributario": [
+    {
+      "ano": 2019,
+      "cnpj_da_scp": null,
+      "forma_de_tributacao": "LUCRO REAL",
+      "quantidade_de_escrituracoes": 1
+    },
+    {
+      "ano": 2020,
+      "cnpj_da_scp": null,
+      "forma_de_tributacao": "LUCRO REAL",
+      "quantidade_de_escrituracoes": 1
+    },
+    {
+      "ano": 2021,
+      "cnpj_da_scp": null,
+      "forma_de_tributacao": "LUCRO REAL",
+      "quantidade_de_escrituracoes": 1
+    },
+    {
+      "ano": 2022,
+      "cnpj_da_scp": null,
+      "forma_de_tributacao": "LUCRO REAL",
+      "quantidade_de_escrituracoes": 1
+    },
+    {
+      "ano": 2023,
+      "cnpj_da_scp": null,
+      "forma_de_tributacao": "LUCRO REAL",
+      "quantidade_de_escrituracoes": 1
+    },
+    {
+      "ano": 2024,
+      "cnpj_da_scp": null,
+      "forma_de_tributacao": "LUCRO REAL",
+      "quantidade_de_escrituracoes": 1
+    }
+  ],
+  "situacao_especial": "",
+  "opcao_pelo_simples": false,
+  "situacao_cadastral": 2,
+  "data_opcao_pelo_mei": null,
+  "data_exclusao_do_mei": null,
+  "cnae_fiscal_descricao": "Comércio varejista de mercadorias em geral, com predominância de produtos alimentícios - supermercados",
+  "codigo_municipio_ibge": 2800308,
+  "data_inicio_atividade": "1996-08-05",
+  "data_situacao_especial": null,
+  "data_opcao_pelo_simples": "2007-07-01",
+  "data_situacao_cadastral": "2005-10-22",
+  "nome_cidade_no_exterior": "",
+  "codigo_natureza_juridica": 2062,
+  "data_exclusao_do_simples": "2018-12-31",
+  "motivo_situacao_cadastral": 0,
+  "ente_federativo_responsavel": "",
+  "identificador_matriz_filial": 1,
+  "qualificacao_do_responsavel": 49,
+  "descricao_situacao_cadastral": "ATIVA",
+  "descricao_tipo_de_logradouro": "RUA",
+  "descricao_motivo_situacao_cadastral": "SEM MOTIVO",
+  "descricao_identificador_matriz_filial": "MATRIZ"
+}
